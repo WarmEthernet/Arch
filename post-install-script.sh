@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Update System
-sudo pacman -Syu --noconfirm
+pacman -Syu --noconfirm
 
 # Install applications from arch repos
 list_of_ar_apps=$(cat <<EOF
@@ -37,21 +37,21 @@ zsh
 EOF
 )
 
-sudo pacman -S --noconfirm $list_of_ar_apps
+pacman -S --noconfirm $list_of_ar_apps
 
 # Install YAY AUR helper
 cd /opt
-sudo git clone https://aur.archlinux.org/yay.git
-sudo chown -R $USER:$USER yay
+git clone https://aur.archlinux.org/yay.git
+sudo -u 1000 chown -R $USER:$USER yay
 
 # Switch to the yay directory and build/install as the normal user
 cd /opt/yay
-sudo -u $USER makepkg -si --noconfirm
+sudo -u 1000 makepkg -si --noconfirm
 cd ..
 rm -rf yay
 
 # Install apps from the AUR
-sudo -u $USER yay -S --noconfirm brave-bin obmenu-generator
+sudo -u 1000 yay -S --noconfirm brave-bin obmenu-generator
 
 # Set ly to start
 sudo systemctl enable ly.service
