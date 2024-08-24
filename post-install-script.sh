@@ -35,6 +35,7 @@ tint2
 tmux
 tree
 unzip
+xorg-xauth
 vim
 vlc
 wget
