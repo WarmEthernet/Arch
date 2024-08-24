@@ -40,8 +40,8 @@ EOF
 pacman -S --noconfirm --needed $list_of_ar_apps
 
 # Setup openbox
-mkdir -p ~/.config/openbox
-cp /etc/xdg/openbox/* ~/.config/openbox/
+sudo -u $SUDO_USER mkdir -p ~/.config/openbox
+sudo -u $SUDO_USER cp /etc/xdg/openbox/* ~/.config/openbox/
 chown -R $SUDO_USER:$SUDO_USER ~/.config
 
 # Install YAY AUR helper
