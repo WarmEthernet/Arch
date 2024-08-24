@@ -49,7 +49,6 @@ cd /opt/yay
 sudo -u $SUDO_USER makepkg -si --noconfirm
 cd ..
 rm -rf yay
-cd
 
 # Install apps from the AUR
 sudo -u $SUDO_USER yay -S --noconfirm brave-bin obmenu-generator
