@@ -39,6 +39,11 @@ EOF
 
 pacman -S --noconfirm --needed $list_of_ar_apps
 
+# Setup openbox
+mkdir -p ~/.config/openbox
+cp /etc/xdg/openbox/* ~/.config/openbox/
+chown -R $SUDO_USER:$SUDO_USER ~/.config
+
 # Install YAY AUR helper
 cd /opt
 git clone https://aur.archlinux.org/yay.git
@@ -56,10 +61,7 @@ sudo -u $SUDO_USER yay -S --noconfirm brave-bin obmenu-generator
 # Set ly to start
 systemctl enable ly.service
 
-# Setup openbox
-mkdir -p ~/.config/openbox
-cp /etc/xdg/openbox/* ~/.config/openbox/
-chown -R $SUDO_USER:$SUDO_USER ~/.config
+
 
 
 
