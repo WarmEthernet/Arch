@@ -42,7 +42,7 @@ pacman -S --noconfirm $list_of_ar_apps
 # Install YAY AUR helper
 cd /opt
 git clone https://aur.archlinux.org/yay.git
-sudo -u $SUDO_USER chown -R $SUDO_USER:$SUDO_USER yay
+chown -R $SUDO_USER:$SUDO_USER yay
 
 # Switch to the yay directory and build/install as the normal user
 cd /opt/yay
