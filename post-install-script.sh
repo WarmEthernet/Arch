@@ -59,7 +59,7 @@ systemctl enable ly.service
 # Setup openbox
 mkdir -p ~/.config/openbox
 cp -a /etc/xdg/openbox ~/.config/
-obmenu-generator -u -p -c
+
 
 
 
