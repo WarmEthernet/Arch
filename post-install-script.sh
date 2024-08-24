@@ -58,7 +58,9 @@ systemctl enable ly.service
 
 # Setup openbox
 mkdir -p ~/.config/openbox
-cp -a /etc/xdg/openbox ~/.config/
+cp /etc/xdg/openbox/* ~/.config/openbox/
+chown -R ~/.config
+
 
 
 
