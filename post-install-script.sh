@@ -36,6 +36,9 @@ tmux
 tree
 unzip
 xorg-xauth
+xorg-server
+xorg-xinit
+xorg-apps
 vim
 vlc
 wget
