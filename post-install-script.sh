@@ -51,10 +51,10 @@ cd ..
 rm -rf yay
 
 # Install apps from the AUR
-sudo -u $SUDO_USER yay -S --noconfirm brave-bin obmenu-generator
+yay -S --noconfirm brave-bin obmenu-generator
 
 # Set ly to start
-sudo systemctl enable ly.service
+systemctl enable ly.service
 
 # Setup openbox
 mkdir -p ~/.config/openbox
