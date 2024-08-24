@@ -51,7 +51,7 @@ cd ..
 rm -rf yay
 
 # Install apps from the AUR
-yay -S --noconfirm brave-bin obmenu-generator
+sudo -u $SUDO_USER yay -S --noconfirm brave-bin obmenu-generator
 
 # Set ly to start
 systemctl enable ly.service
