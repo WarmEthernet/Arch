@@ -39,6 +39,7 @@ xorg-xauth
 xorg-server
 xorg-xinit
 xorg-apps
+xfce4-terminal
 vim
 vlc
 wget
