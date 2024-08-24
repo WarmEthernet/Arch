@@ -37,7 +37,7 @@ zsh
 EOF
 )
 
-pacman -S --noconfirm $list_of_ar_apps
+pacman -S --noconfirm --needed $list_of_ar_apps
 
 # Install YAY AUR helper
 cd /opt
