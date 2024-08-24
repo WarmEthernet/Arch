@@ -59,7 +59,7 @@ systemctl enable ly.service
 # Setup openbox
 mkdir -p ~/.config/openbox
 cp /etc/xdg/openbox/* ~/.config/openbox/
-chown -R ~/.config
+chown -R $SUDO_USER:$SUDO_USER ~/.config
 
 
 
