@@ -1,8 +1,7 @@
 #!/bin/sh
 
 # Update System
-pacman -Syu --noconfirm
-
+sudo pacman -Syu --noconfirm
 
 # Install applications from arch repos
 list_of_ar_apps=$(cat <<EOF
@@ -38,27 +37,29 @@ zsh
 EOF
 )
 
-pacman -S --noconfirm $list_of_ar_apps
-
+sudo pacman -S --noconfirm $list_of_ar_apps
 
 # Install YAY AUR helper
 cd /opt
 sudo git clone https://aur.archlinux.org/yay.git
 sudo chown -R $USER:$USER yay
-cd yay
-makepkg -si --noconfirm
+
+# Switch to the yay directory and build/install as the normal user
+cd /opt/yay
+sudo -u $USER makepkg -si --noconfirm
 cd ..
 rm -rf yay
 
 # Install apps from the AUR
-yay -S --noconfirm brave-bin obmenu-generator
+sudo -u $USER yay -S --noconfirm brave-bin obmenu-generator
 
 # Set ly to start
-systemctl enable ly.service
+sudo systemctl enable ly.service
 
 # Setup openbox
 mkdir -p ~/.config/openbox
 cp -a /etc/xdg/openbox ~/.config/
 obmenu-generator -u -p -c
+
 
 
