@@ -61,7 +61,7 @@ sudo -u "$NON_ROOT_USER" systemctl --user enable xdg-desktop-portal-hyprland
 
 # Ensure Hyprland appears in the session list by creating a desktop entry
 echo "Creating Hyprland session entry..."
-sudo tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null <<EOL
+tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null <<EOL
 [Desktop Entry]
 Name=Hyprland
 Comment=A dynamic tiling Wayland compositor
