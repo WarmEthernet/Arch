@@ -1,80 +1,46 @@
 #!/bin/bash
-
-# Check if the script is run as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run this script as root."
-  exit 1
-fi
+set -e
 
 # Update system
 echo "Updating system..."
-pacman -Syu --noconfirm
+sudo pacman -Syu --noconfirm
 
-# Install Wayland and dependencies
-echo "Installing Wayland and essential packages..."
-pacman -S --noconfirm wayland xorg-xwayland
+# Install prerequisites for building paru
+echo "Installing prerequisites..."
+sudo pacman -S --needed --noconfirm base-devel git
 
-# Install SDDM (display manager) and enable it
-echo "Installing and enabling SDDM..."
-pacman -S --noconfirm sddm
-systemctl enable sddm.service
+# Clone paru repository, build and install it as 'nobody' user
+echo "Installing paru AUR helper..."
+sudo -u nobody bash -c "
+cd /tmp &&
+git clone https://aur.archlinux.org/paru.git &&
+cd paru &&
+makepkg -si --noconfirm
+"
+echo "paru installed successfully."
 
-# Detect non-root user for AUR installation
-USER_HOME="/home/$(logname)"
-NON_ROOT_USER=$(logname)
+# Install Hyprland, Wayland, and SDDM
+echo "Installing Hyprland, Wayland, and SDDM..."
+sudo pacman -S --noconfirm wayland hyprland sddm
 
-# Install paru (AUR helper) as non-root user
-echo "Checking for paru..."
-if ! command -v paru &> /dev/null; then
-  echo "paru not found, installing paru (AUR helper)..."
-  
-  # Create temporary directory for paru installation
-  sudo -u "$NON_ROOT_USER" bash <<EOF
-  cd "$USER_HOME"
-  git clone https://aur.archlinux.org/paru.git
-  cd paru
-  makepkg -si --noconfirm
-  cd ..
-  rm -rf paru
-EOF
-fi
+# Enable SDDM to start at boot
+echo "Enabling SDDM service..."
+sudo systemctl enable sddm.service
 
-# Install Hyprland, Tofi, and Waybar using paru with --noconfirm
-echo "Installing Hyprland, Tofi, and Waybar using paru..."
-sudo -u "$NON_ROOT_USER" paru -S --noconfirm hyprland-git tofi waybar
+# Configure SDDM to start Hyprland by default
+echo "Configuring SDDM to use Hyprland..."
+sddm_config_dir="/etc/sddm.conf.d"
+sddm_config_file="$sddm_config_dir/wayland.conf"
 
-# Install additional packages for a smoother experience
-echo "Installing additional packages..."
-pacman -S --noconfirm wlroots qt5-wayland qt6-wayland xdg-desktop-portal-hyprland
+# Create SDDM config directory if it doesn't exist
+sudo mkdir -p "$sddm_config_dir"
 
-# Copy a sample Hyprland configuration to the user’s config folder if it doesn’t exist
-HYPRLAND_CONFIG="$USER_HOME/.config/hypr"
-if [ ! -d "$HYPRLAND_CONFIG" ]; then
-  mkdir -p "$HYPRLAND_CONFIG"
-  cp /usr/share/hyprland/hyprland.conf.example "$HYPRLAND_CONFIG/hyprland.conf"
-  chown -R "$NON_ROOT_USER":"$NON_ROOT_USER" "$HYPRLAND_CONFIG"
-fi
+# Write configuration to select Hyprland as the session
+echo -e "[General]\nSession=hyprland" | sudo tee "$sddm_config_file" > /dev/null
 
-# Enable user services (e.g., xdg-desktop-portal) for Wayland
-echo "Enabling xdg-desktop-portal for Wayland support..."
-sudo -u "$NON_ROOT_USER" systemctl --user enable xdg-desktop-portal-hyprland
+echo "SDDM configured to use Hyprland as the default session."
 
-# Ensure Hyprland appears in the session list by creating a desktop entry
-echo "Creating Hyprland session entry..."
-tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null <<EOL
-[Desktop Entry]
-Name=Hyprland
-Comment=A dynamic tiling Wayland compositor
-Exec=Hyprland
-Type=Application
-DesktopNames=Hyprland
-EOL
+# Optionally, you can add more applications to install using paru here, for example:
+# paru -S <your-favorite-packages>
 
-# Provide instructions for logging into Hyprland
-echo
-echo "Installation completed successfully!"
-echo "To start using Hyprland, log out, and choose SDDM as the display manager."
-echo "Then, select Hyprland as your session to log in."
-echo
-echo "Configure your Hyprland, Waybar, and Tofi settings by editing configuration files in $USER_HOME/.config."
-echo "Happy customizing!"
+echo "Post-installation setup completed successfully."
