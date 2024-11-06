@@ -23,7 +23,23 @@ systemctl enable sddm.service
 USER_HOME="/home/$(logname)"
 NON_ROOT_USER=$(logname)
 
-# Install Hyprland, Tofi, and Waybar using paru as non-root
+# Install paru (AUR helper) as non-root user
+echo "Checking for paru..."
+if ! command -v paru &> /dev/null; then
+  echo "paru not found, installing paru (AUR helper)..."
+  
+  # Create temporary directory for paru installation
+  sudo -u "$NON_ROOT_USER" bash <<EOF
+  cd "$USER_HOME"
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
+  makepkg -si --noconfirm
+  cd ..
+  rm -rf paru
+EOF
+fi
+
+# Install Hyprland, Tofi, and Waybar using paru with --noconfirm
 echo "Installing Hyprland, Tofi, and Waybar using paru..."
 sudo -u "$NON_ROOT_USER" paru -S --noconfirm hyprland-git tofi waybar
 
@@ -41,7 +57,18 @@ fi
 
 # Enable user services (e.g., xdg-desktop-portal) for Wayland
 echo "Enabling xdg-desktop-portal for Wayland support..."
-systemctl --user enable xdg-desktop-portal-hyprland
+sudo -u "$NON_ROOT_USER" systemctl --user enable xdg-desktop-portal-hyprland
+
+# Ensure Hyprland appears in the session list by creating a desktop entry
+echo "Creating Hyprland session entry..."
+sudo tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null <<EOL
+[Desktop Entry]
+Name=Hyprland
+Comment=A dynamic tiling Wayland compositor
+Exec=Hyprland
+Type=Application
+DesktopNames=Hyprland
+EOL
 
 # Provide instructions for logging into Hyprland
 echo
