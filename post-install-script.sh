@@ -1,109 +1,60 @@
-#!/bin/sh
+#!/bin/bash
 
-# Ensure the script is run as root
-if [ "$(id -u)" -ne "0" ]; then
-  echo "This script must be run as root."
+# Check if the script is run as root
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this script as root."
   exit 1
 fi
 
-# Update System
+# Update system
+echo "Updating system..."
 pacman -Syu --noconfirm
 
-# Install applications from arch repos
-list_of_ar_apps=$(cat <<EOF
-alacritty
-ansible-core
-base-devel
-btop
-fzf
-git
-jq
-less
-lxappearance
-lxappearance-obconf
-ly
-neofetch
-nitrogen
-obconf
-openbox
-openssh
-picom
-python-pip
-rofi
-rsync
-tint2
-tmux
-tree
-unzip
-xorg-xauth
-xorg-server
-xorg-xinit
-xorg-apps
-xfce4-terminal
-vim
-vlc
-wget
-whois
-zsh
-EOF
-)
+# Install Wayland and dependencies
+echo "Installing Wayland and essential packages..."
+pacman -S --noconfirm wayland xorg-xwayland
 
-pacman -S --noconfirm --needed $list_of_ar_apps
+# Install SDDM (display manager) and enable it
+echo "Installing and enabling SDDM..."
+pacman -S --noconfirm sddm
+systemctl enable sddm.service
 
-
-
-# Define the default Openbox config directory
-DEFAULT_CONFIG_DIR="/etc/xdg/openbox"
-
-# Check if the default config directory exists
-if [ ! -d "$DEFAULT_CONFIG_DIR" ]; then
-  echo "Default Openbox config directory does not exist: $DEFAULT_CONFIG_DIR"
-  exit 1
+# Install paru (AUR helper) if it's not already installed
+echo "Checking for paru..."
+if ! command -v paru &> /dev/null; then
+  echo "paru not found, installing paru (AUR helper)..."
+  pacman -S --needed --noconfirm base-devel git
+  git clone https://aur.archlinux.org/paru.git
+  cd paru && makepkg -si --noconfirm
+  cd ..
+  rm -rf paru
 fi
 
-# Get the home directory of the user who started the script
-USER_HOME=$(eval echo ~$SUDO_USER)
+# Install Hyprland, Tofi, and Waybar from AUR
+echo "Installing Hyprland, Tofi, and Waybar using paru..."
+paru -S --noconfirm hyprland-git tofi waybar
 
-# Create the .config directory in the user's home directory
-USER_CONFIG_DIR="$USER_HOME/.config/openbox"
-mkdir -p "$USER_CONFIG_DIR"
+# Install additional packages for a smoother experience
+echo "Installing additional packages..."
+pacman -S --noconfirm wlroots qt5-wayland qt6-wayland xdg-desktop-portal-hyprland
 
-# Copy the default config files to the user's .config/openbox directory
-cp -r "$DEFAULT_CONFIG_DIR/"* "$USER_CONFIG_DIR/"
+# Copy a sample Hyprland configuration to the user’s config folder if it doesn’t exist
+USER_HOME="/home/$(logname)"
+HYPRLAND_CONFIG="$USER_HOME/.config/hypr"
+if [ ! -d "$HYPRLAND_CONFIG" ]; then
+  mkdir -p "$HYPRLAND_CONFIG"
+  cp /usr/share/hyprland/hyprland.conf.example "$HYPRLAND_CONFIG/hyprland.conf"
+fi
 
-# Set the appropriate ownership for the copied files
-chown -R $SUDO_USER:$SUDO_USER "$USER_CONFIG_DIR"
+# Enable user services (e.g., xdg-desktop-portal) for Wayland
+echo "Enabling xdg-desktop-portal for Wayland support..."
+systemctl --user enable xdg-desktop-portal-hyprland
 
-echo "Openbox configuration has been set up in $USER_CONFIG_DIR."
-
-
-
-
-# Setup openbox
-#sudo -u $SUDO_USER mkdir -p ~/.config/openbox
-#sudo -u $SUDO_USER cp /etc/xdg/openbox/* ~/.config/openbox/
-#chown -R $SUDO_USER:$SUDO_USER ~/.config
-
-# Install YAY AUR helper
-cd /opt
-git clone https://aur.archlinux.org/yay.git
-chown -R $SUDO_USER:$SUDO_USER yay
-
-# Switch to the yay directory and build/install as the normal user
-cd /opt/yay
-sudo -u $SUDO_USER makepkg -si --noconfirm
-cd ..
-rm -rf yay
-
-# Install apps from the AUR
-sudo -u $SUDO_USER yay -S --noconfirm brave-bin obmenu-generator
-
-# Set ly to start
-systemctl enable ly.service
-
-
-
-
-
-
-
+# Provide instructions for logging into Hyprland
+echo
+echo "Installation completed successfully!"
+echo "To start using Hyprland, log out, and choose SDDM as the display manager."
+echo "Then, select Hyprland as your session to log in."
+echo
+echo "Configure your Hyprland, Waybar, and Tofi settings by editing configuration files in $USER_HOME/.config."
+echo "Happy customizing!"
