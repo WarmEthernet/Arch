@@ -23,21 +23,6 @@ systemctl enable sddm.service
 USER_HOME="/home/$(logname)"
 NON_ROOT_USER=$(logname)
 
-# Install paru (AUR helper) as non-root user
-echo "Checking for paru..."
-if ! command -v paru &> /dev/null; then
-  echo "paru not found, installing paru (AUR helper)..."
-  pacman -S --needed --noconfirm base-devel git
-  sudo -u "$NON_ROOT_USER" bash <<EOF
-  cd "$USER_HOME"
-  git clone https://aur.archlinux.org/paru.git
-  cd paru
-  makepkg -si --noconfirm
-  cd ..
-  rm -rf paru
-EOF
-fi
-
 # Install Hyprland, Tofi, and Waybar using paru as non-root
 echo "Installing Hyprland, Tofi, and Waybar using paru..."
 sudo -u "$NON_ROOT_USER" paru -S --noconfirm hyprland-git tofi waybar
