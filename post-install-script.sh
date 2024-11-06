@@ -18,10 +18,10 @@ rm -rf paru/
 echo "paru installed successfully."
 
 # Install Wayland and hyprland w/dependencies
-sudo pacman -S --needed wayland hyprland kitty sddm
-paru -S tofi
+sudo pacman -S --needed --noconfirm wayland hyprland kitty sddm
+paru -S --noconrirm tofi
 
 sudo systemctl enable sddm.service
-sudo systemctl start sddm.service
+sudo reboot now
 
 
