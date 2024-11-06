@@ -9,19 +9,17 @@ sudo pacman -Syu --noconfirm
 echo "Installing prerequisites..."
 sudo pacman -S --needed --noconfirm base-devel git
 
-# Clone paru repository, build and install it as 'nobody' user
+# Clone paru repository, build, and install it as 'nobody' user
 echo "Installing paru AUR helper..."
-sudo -u nobody bash -c "
-cd /tmp &&
-git clone https://aur.archlinux.org/paru.git &&
-cd paru &&
-makepkg -si --noconfirm
-"
+sudo git clone https://aur.archlinux.org/paru.git /tmp/paru
+sudo chown -R nobody:nobody /tmp/paru
+cd /tmp/paru
+sudo -u nobody makepkg -si --noconfirm
 echo "paru installed successfully."
 
 # Install Hyprland, Wayland, and SDDM
 echo "Installing Hyprland, Wayland, and SDDM..."
-sudo pacman -S --noconfirm wayland hyprland sddm
+paru -S --noconfirm wayland hyprland sddm
 
 # Enable SDDM to start at boot
 echo "Enabling SDDM service..."
@@ -40,7 +38,8 @@ echo -e "[General]\nSession=hyprland" | sudo tee "$sddm_config_file" > /dev/null
 
 echo "SDDM configured to use Hyprland as the default session."
 
-# Optionally, you can add more applications to install using paru here, for example:
-# paru -S <your-favorite-packages>
+# Cleanup
+echo "Cleaning up..."
+sudo rm -rf /tmp/paru
 
 echo "Post-installation setup completed successfully."
