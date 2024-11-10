@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Cache sudo creds
-echo "Please enter your sudo password"
-sudo -v
-
-# Set cached sudo creds timeout for the session
-sudo sh -c "echo 900 > /proc/$$/limits"
-
 # Update system
 echo "Updating system..."
 sudo pacman -Syu --noconfirm
@@ -24,9 +17,8 @@ cd ..
 rm -rf paru/
 echo "paru installed successfully."
 
-# Install wayland, hyprland, kitty, tofi, and sddm w/dependencies
-sudo pacman -S --needed --noconfirm wayland hyprland kitty sddm
-paru -S --noconrirm tofi
+# Install wayland, hyprland, kitty, wofi, and sddm w/dependencies
+sudo pacman -S --needed --noconfirm wayland hyprland kitty sddm wofi
 
 # Enable sddm
 sudo systemctl enable sddm.service
